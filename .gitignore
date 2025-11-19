@@ -48,10 +48,3 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# Ignorar carpetas de datos generados
-data/clean/
-data/processed/
-
-# Ignorar carpetas de resultados generados
-output/tables/
-output/figures/
