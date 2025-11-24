@@ -49,7 +49,7 @@ saveRDS(df_prod_export_limpio, file = ruta_salida_export)
 saveRDS(df_prod_potencial_limpio, file = ruta_salida_potencial)
 
 # Documentación (Logging y documentación automática)
-cat("\nDatos limpios guiardados con exito",
+cat("\nDatos limpios guardados con exito",
     "\n ->", ruta_salida_export,
     "\n ->", ruta_salida_potencial, "\n")
 
@@ -65,11 +65,12 @@ df_prod_potencial_reducido <- df_prod_potencial_limpio %>%
 
 # 5. Guardar los datos procesados
 
-# Se utiliza la carpeta data/clean/ para los resultados de la limpieza y transformación [3].
-# Es buena práctica agregar un timestamping o sufijo claro (ej: _reducido)
+# Se utiliza la carpeta data/clean/ para los resultados de la limpieza y transformación.
 
+ruta_salida_export <- here("data", "clean", "df_prod_export_reducido.rds")
+ruta_salida_potencial <- here("data", "clean", "df_prod_potencial_reducido.rds")
 
-saveRDS(df_prod_export_reducido, file= here(data, clean)
+saveRDS(df_prod_export_reducido, file = ruta_salida_export)
 saveRDS(df_prod_potencial_reducido, file = ruta_salida_potencial)
 
 # Documentación (Logging y documentación automática)

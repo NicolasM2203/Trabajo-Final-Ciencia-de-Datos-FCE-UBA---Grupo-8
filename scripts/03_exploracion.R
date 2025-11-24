@@ -22,8 +22,8 @@ ruta_carga_export <- file.path(dir_data_clean, "df_prod_export_limpio.rds")
 ruta_carga_potencial <- file.path(dir_data_clean, "df_prod_potencial_limpio.rds")
 
 # Cargar los datos limpios y procesados (Autocontención) [11, 12]
-df_export_limpio <- readRDS(ruta_carga_export) 
-df_potencial_limpio <- readRDS(ruta_carga_potencial) 
+df_prod_export_limpio <- readRDS(ruta_carga_export) 
+df_prod_potencial_limpio <- readRDS(ruta_carga_potencial) 
 
 mensaje_exito("Bases de datos limpias cargadas correctamente.")
 
@@ -33,15 +33,15 @@ mensaje_exito("Bases de datos limpias cargadas correctamente.")
 
 mensaje_proceso("1. Verificando estructura general, dimensiones y tipos de datos")
 
-# 1.1 Base 1 (Potencialidad - Hipótesis C)
-cat("\n--- ESTRUCTURA BASE 1 (Potencialidad) ---\n")
-cat("Dimensiones:", nrow(df_export_limpio), "filas x", ncol(df_export_limpio), "columnas\n") # Estructura general [13]
-glimpse(df_export_limpio) # Identificación de columnas y tipos de datos [13, 14]
+# 1.1 Base Potencial (Potencialidad - Hipótesis C)
+cat("\n--- ESTRUCTURA BASE (Potencial) ---\n")
+cat("Dimensiones:", nrow(df_prod_export_limpio), "filas x", ncol(df_prod_export_limpio), "columnas\n") # Estructura general [13]
+glimpse(df_prod_export_limpio) # Identificación de columnas y tipos de datos [13, 14]
 
-# 1.2 Base 2 (Centralidad - Hipótesis D)
-cat("\n--- ESTRUCTURA BASE 2 (Centralidad) ---\n")
-cat("Dimensiones:", nrow(df_potencial_limpio), "filas x", ncol(df_potencial_limpio), "columnas\n")
-glimpse(df_potencial_limpio) 
+# 1.2 Base Export (Centralidad - Hipótesis D)
+cat("\n--- ESTRUCTURA BASE (Export) ---\n")
+cat("Dimensiones:", nrow(df_prod_potencial_limpio), "filas x", ncol(df_prod_potencial_limpio), "columnas\n")
+glimpse(df_prod_potencial_limpio) 
 
 # Nota: Se verifica que las variables clave sean numéricas (potencialidad, centralidad, complejidad_producto, distancia) 
 # y que 'seccion' sea categórica (factor/character) para el ANOVA.
@@ -53,38 +53,42 @@ glimpse(df_potencial_limpio)
 mensaje_proceso("2. Cuantificación y patrón de datos faltantes (NAs)")
 
 # Cuantificación de NAs por columna [15]
-reporte_na_base1 <- df_export_limpio %>%
+reporte_na_base_export <- df_prod_export_limpio %>%
   summarise(across(everything(), ~ sum(is.na(.)), .names = "N_NA_{.col}")) %>%
   tidyr::pivot_longer(everything(), names_to = "Variable", values_to = "N_NA") %>%
-  mutate(P_NA = round(N_NA / nrow(df_export_limpio) * 100, 2)) %>%
+  mutate(P_NA = round(N_NA / nrow(df_prod_export_limpio) * 100, 2)) %>%
   filter(N_NA > 0)
 
-cat("\n--- REPORTE DE VALORES FALTANTES (BASE 1) ---\n")
-if (nrow(reporte_na_base1) > 0) {
-  print(reporte_na_base1)
+cat("\n--- REPORTE DE VALORES FALTANTES (BASE EXPORT) ---\n")
+if (nrow(reporte_na_base_export) > 0) {
+  print(reporte_na_base_export)
   # Visualización del patrón de faltantes (si existen NAs)
-  p_vis_na_1 <- vis_miss(df_export_limpio) + 
-    labs(title = "Patrón de Datos Faltantes - Base 1")
-  ggsave(file.path(dir_outputs_figures, "eda_na_base1.png"), plot = p_vis_na_1, width = 8, height = 6)
-  mensaje_proceso("Gráfico de patrón de faltantes Base 1 guardado.")
+  p_vis_na_1 <- vis_miss(df_prod_export_limpio) + 
+    labs(title = "Patrón de Datos Faltantes - Base Export")
+  ggsave(file.path(dir_outputs_figures, "eda_na_base_export.png"), plot = p_vis_na_1, width = 8, height = 6)
+  mensaje_proceso("Gráfico de patrón de faltantes Base Export guardado.")
 } else {
-  mensaje_exito("Base 1 no contiene valores faltantes.")
+  mensaje_exito("Base Export no contiene valores faltantes.")
 }
 
 # (Repetir para Base 2)
-reporte_na_base2 <- df_potencial_limpio %>%
+reporte_na_base_potencial <- df_prod_potencial_limpio %>%
   summarise(across(everything(), ~ sum(is.na(.)), .names = "N_NA_{.col}")) %>%
   tidyr::pivot_longer(everything(), names_to = "Variable", values_to = "N_NA") %>%
-  mutate(P_NA = round(N_NA / nrow(df_potencial_limpio) * 100, 2)) %>%
+  mutate(P_NA = round(N_NA / nrow(df_prod_potencial_limpio) * 100, 2)) %>%
   filter(N_NA > 0)
 
-cat("\n--- REPORTE DE VALORES FALTANTES (BASE 2) ---\n")
-if (nrow(reporte_na_base2) > 0) {
-  print(reporte_na_base2)
+cat("\n--- REPORTE DE VALORES FALTANTES (BASE POTENCIAL) ---\n")
+if (nrow(reporte_na_base_potencial) > 0) {
+  print(reporte_na_base_potencial)
+  # Visualización del patrón de faltantes (si existen NAs)
+  p_vis_na_2 <- vis_miss(df_prod_potencial_limpio) + 
+    labs(title = "Patrón de Datos Faltantes - Base Potencial")
+  ggsave(file.path(dir_outputs_figures, "eda_na_base_potencial.png"), plot = p_vis_na_2, width = 8, height = 6)
+  mensaje_proceso("Gráfico de patrón de faltantes Base Potencial guardado.")
 } else {
-  mensaje_exito("Base 2 no contiene valores faltantes.")
+  mensaje_exito("Base Potencial no contiene valores faltantes.")
 }
-
 
 # -----------------------------------------------------------------------------
 # 3. ESTADÍSTICAS DESCRIPTIVAS Y OUTLIERS (CONSIGNA 4 y 5)

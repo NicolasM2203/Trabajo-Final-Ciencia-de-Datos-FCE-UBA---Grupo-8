@@ -15,7 +15,9 @@ pacman::p_load(
   readxl,       # Leer Excel
   lubridate,    # Manejo de fechas
   scales,       # Formato de ejes en gráficos
-  janitor       # Limpieza de nombres (muy recomendado)
+  janitor,       # Limpieza de nombres (muy recomendado)
+  naniar,      # Gestión y visualización de datos faltantes (NA's)
+  patchwork    # Combinar múltiples gráficos de ggplot2
 )
 
 # Definir directorios de forma reproducible
