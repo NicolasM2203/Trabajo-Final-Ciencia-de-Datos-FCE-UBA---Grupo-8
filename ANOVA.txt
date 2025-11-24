@@ -1,0 +1,67 @@
+El ANOVA es una técnica estadística que permite comparar las medias de tres o más grupos en una variable continua, controlando la tasa de error Tipo I (falsos positivos). Es una herramienta ideal para trabajar con variables categóricas.
+A partir de las variables de la Base 2:
+• Variables Continuas (Posibles Dependientes Y): centralidad, complejidad_producto, complejidad_provincia.
+• Variables Categóricas (Posibles Factores): seccion, provincia, tiene_vcr.
+La variable seccion (que representa agrupaciones macro-industriales o sectoriales) es el candidato ideal para ser el factor principal, ya que posee múltiples niveles (más de dos).
+
+--------------------------------------------------------------------------------
+HIPÓTESIS PARA ANÁLISIS DE VARIANZA (ANOVA)
+Proponemos un ANOVA de Un Factor (One-Way ANOVA) para evaluar si las características estructurales de los productos difieren significativamente entre los grandes sectores de la economía.
+Hipótesis D: Diferencias en la Centralidad de Productos por Sección Económica
+La Centralidad de un producto (centralidad) mide qué tan bien conectado está ese producto dentro del Espacio de Productos, lo cual está asociado a su potencial para la diversificación y el desarrollo de nuevas capacidades. Evaluar si esta Centralidad difiere por seccion (sector económico) ofrece información crucial sobre la estructura del Espacio de Productos a nivel provincial.
+Formulación de la Pregunta de Investigación:
+¿Existen diferencias estadísticamente significativas en la media de la Centralidad del Producto (centralidad) entre las diferentes Secciones a las que pertenecen los productos exportados con VCR (tiene_vcr = 1)?
+Hipótesis Nula (H 
+0
+​
+ ):
+H 
+0
+​
+ : La media de la Centralidad del Producto (centralidad) es igual para todas las Secciones de la economía (μ 
+Sec A
+​
+ =μ 
+Sec B
+​
+ =⋯=μ 
+Sec k
+​
+ ).
+Hipótesis Alternativa (H 
+1
+​
+ ):
+H 
+1
+​
+ : Al menos una media de Centralidad del Producto difiere significativamente entre las Secciones.
+
+--------------------------------------------------------------------------------
+Diseño de Investigación y Rigor Metodológico
+La aplicación correcta de esta técnica estadística requiere una secuencia de pasos bien definidos para garantizar la reproducibilidad y la claridad expositiva:
+1. Análisis Exploratorio y Estadísticas Descriptivas (EDA)
+Antes de ajustar el modelo formal de ANOVA, se debe realizar un análisis exploratorio de datos (EDA) exhaustivo.
+• Exploración de la variable dependiente: Analizar la distribución de centralidad (continua) para detectar anomalías u outliers, que son valores extremos a los que la media es MUY sensible.
+• Estadísticas por grupo: Calcular las estadísticas descriptivas (media, mediana, desviación estándar) de centralidad para cada nivel de seccion. Esto permite identificar patrones preliminares antes del análisis formal.
+• Visualización: Crear boxplots o violin plots de centralidad agrupados por seccion para comparar distribuciones entre grupos.
+2. Verificación de Supuestos (Rigor Metodológico)
+El ANOVA es una prueba paramétrica y su validez depende del cumplimiento de tres supuestos cruciales:
+1. Independencia de las observaciones: Las mediciones deben ser independientes. En este contexto, se asume que la Centralidad de un producto no está influenciada por la Centralidad de otro producto en una sección diferente.
+2. Normalidad: Los residuos del modelo deben seguir una distribución normal. Este supuesto se puede verificar con pruebas como Shapiro-Wilk o con gráficos Q-Q plots. Si el tamaño muestral (n) es grande, el ANOVA es robusto a violaciones menores de la normalidad (por el Teorema del Límite Central, TCL).
+3. Homogeneidad de Varianzas (Homocedasticidad): La varianza de la variable centralidad debe ser aproximadamente igual en todos los grupos (seccion). Esto se comprueba formalmente utilizando el Test de Levene.
+Si se violan los supuestos (especialmente la homogeneidad de varianzas, donde el p-valor del Test de Levene es bajo), se debe considerar una alternativa robusta, como el ANOVA de Welch (si la homogeneidad falla) o el Test de Kruskal-Wallis (si la normalidad falla, siendo esta la alternativa no paramétrica del ANOVA).
+3. Ajuste e Interpretación del Modelo
+Una vez verificado el cumplimiento de los supuestos, se procede al ajuste del modelo:
+• Ajuste del Modelo: Se utiliza la función aov() o una regresión lineal (lm()) con dummies para la variable seccion, ya que el ANOVA es equivalente a la regresión con variables binarias (dummies).
+• Estadístico F: El resultado clave es el estadístico F y su p-valor global. Este estadístico se obtiene del cociente entre la variabilidad entre grupos y la variabilidad dentro de grupos. Si el p-valor asociado al estadístico F es pequeño (típicamente p<0.05), se rechaza la H 
+0
+​
+  y se concluye que la seccion explica una parte significativa de la variabilidad en centralidad.
+4. Análisis Post-Hoc (Pensamiento Crítico)
+Si se rechaza la H 
+0
+​
+  global, el ANOVA solo indica que al menos una media difiere, pero no especifica cuál. Aquí interviene el pensamiento crítico: es necesario realizar comparaciones múltiples post-hoc (como el Test de Tukey HSD).
+• Propósito: El test de Tukey controla el error tipo I cuando se realizan múltiples comparaciones por pares (e.g., Sección A vs. Sección B, Sección A vs. Sección C, etc.).
+• Conclusión: Este paso es vital para identificar con claridad expositiva qué pares de secciones tienen Centralidades de Producto que difieren significativamente, proporcionando la información detallada que la prueba F global oculta.

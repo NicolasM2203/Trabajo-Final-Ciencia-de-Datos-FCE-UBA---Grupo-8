@@ -1,0 +1,19 @@
+Hipótesis Refinada C (Énfasis en la Potencialidad de Diversificación):
+H 
+0
+​
+ : La Potencialidad (Potencialidad) de un producto no exportado con VCR no está significativamente determinada por la complejidad de ese producto (complejidad_producto) y su cercanía a la canasta exportadora actual (distancia).
+H 
+1
+​
+ : Existe una relación positiva y estadísticamente significativa entre la Potencialidad de un producto y su Complejidad (complejidad_producto), y una relación negativa y significativa entre la Potencialidad y la Distancia (distancia) de la provincia a ese producto.
+Rigor Metodológico (Modelo Econométrico):
+1. Modelo Log-Lineal o Nivel-Nivel: Se podría usar un modelo de regresión simple o múltiple (MCO) donde la variable dependiente sea potencialidad y las explicativas sean complejidad_producto y distancia (Base 1).
+2. Forma Funcional: Considerando que la Potencialidad se define como la suma ponderada del ICP por la Cercanía (1 - Distancia), el modelo log-log (donde el coeficiente mide la elasticidad) o nivel-nivel sería la base, aunque la propia fórmula de Potencialidad ya establece una relación no lineal y ponderada.
+3. Interpretación Causal: Se debe ser cauteloso. Si bien el modelo lineal (Potencialidad en función de ICP y Distancia) es una simplificación de una identidad matemática compleja, el análisis permitiría medir la contribución relativa de cada componente (ICP vs. Distancia) al ranking de oportunidades de diversificación.
+Este enfoque permite un análisis de regresión múltiple más interesante, ya que:
+• Mide el efecto parcial del ICP, manteniendo la distancia constante.
+• Mide la contribución del factor geográfico/estructural (distancia) en la determinación del valor de la oportunidad de diversificación.
+Finalmente, si se trabaja con esta hipótesis, se recomienda usar la clasificación de productos a 6 dígitos (cod_ncm_6d) para obtener la máxima desagregación, tal como se empleó en la construcción de los indicadores.
+
+
