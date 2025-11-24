@@ -37,7 +37,7 @@ print("Aplicando limpieza a la base de Potencial Productivo (prod_pontecial)..."
 df_prod_potencial_limpio <- limpiar_nombres(df_prod_potencial)
 df_prod_potencial_limpio <- limpiar_prop(df_prod_potencial_limpio)
 
-# 4. Guardar los datos procesados 
+# 4. Guardar los datos limpios
 
 # Se utiliza la carpeta data/clean/para los resultados de la limpieza y transformación [3].
 # Es buena práctica agregar un timestamping o sufijo claro (ej: _limpio)
@@ -68,7 +68,8 @@ df_prod_potencial_reducido <- df_prod_potencial_limpio %>%
 # Se utiliza la carpeta data/clean/ para los resultados de la limpieza y transformación [3].
 # Es buena práctica agregar un timestamping o sufijo claro (ej: _reducido)
 
-saveRDS(df_prod_export_reducido, file = ruta_salida_export)
+
+saveRDS(df_prod_export_reducido, file= here(data, clean)
 saveRDS(df_prod_potencial_reducido, file = ruta_salida_potencial)
 
 # Documentación (Logging y documentación automática)
