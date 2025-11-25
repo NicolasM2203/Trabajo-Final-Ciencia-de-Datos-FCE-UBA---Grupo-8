@@ -116,22 +116,22 @@ calcular_descriptivas <- function(df, variables) {
     rename(Valor = V1)
 }
 
-# 3.1 Base 1: Variables Continuas (Potencialidad y Distancia para Hipótesis C)
-vars_base1_cont <- c("potencialidad", "complejidad_producto", "distancia", "fob_mundial")
-descriptivas_base1 <- calcular_descriptivas(df_export_limpio, vars_base1_cont)
+# 3.1 Base potencial: Variables Continuas (Potencialidad y Distancia para Hipótesis C)
+vars_potencial_cont <- c("potencialidad", "complejidad_producto", "distancia", "fob_mundial")
+descriptivas_potencial <- calcular_descriptivas(df_prod_potencial_limpio, vars_potencial_cont)
 
-cat("\n--- DESCRIPTIVAS CLAVE (BASE 1) ---\n")
-print(descriptivas_base1, n = Inf)
+cat("\n--- DESCRIPTIVAS CLAVE (BASE POTENCIAL) ---\n")
+print(descriptivas_potencial,)
 
 # NOTA CRÍTICA: Observar Media vs Mediana. Diferencias grandes indican asimetría (outliers) [18]
 # Si Media > Mediana, se necesitará considerar la transformación logarítmica [19-21].
 
 # 3.2 Base 2: Variables Continuas (Centralidad para Hipótesis D)
-vars_base2_cont <- c("centralidad", "complejidad_producto", "complejidad_provincia")
-descriptivas_base2 <- calcular_descriptivas(df_potencial_limpio, vars_base2_cont)
+vars_export_cont <- c("centralidad", "complejidad_producto", "complejidad_provincia")
+descriptivas_export <- calcular_descriptivas(df_prod_export_limpio, vars_export_cont)
 
-cat("\n--- DESCRIPTIVAS CLAVE (BASE 2) ---\n")
-print(descriptivas_base2, n = Inf)
+cat("\n--- DESCRIPTIVAS CLAVE (BASE EXPORT) ---\n")
+print(descriptivas_export,)
 
 # -----------------------------------------------------------------------------
 # 4. VISUALIZACIÓN DE DISTRIBUCIONES (CONSIGNA 4 y 5)
@@ -143,7 +143,7 @@ mensaje_proceso("4. Generando visualizaciones clave para diagnóstico de modelad
 # Histograma (para ver forma/asimetría) y Boxplot (para ver outliers IQR) [22-24]
 
 # Histograma de Potencialidad
-p_pot_hist <- ggplot(df_export_limpio, aes(x = potencialidad)) +
+p_pot_hist <- ggplot(df_prod_potencial_limpio, aes(x = potencialidad)) +
   geom_histogram(aes(y = after_stat(density)), bins = 50, fill = "steelblue", color = "white", alpha = 0.7) +
   geom_density(linewidth = 1, color = "red") +
   labs(title = "Distribución de Potencialidad",
@@ -152,7 +152,7 @@ p_pot_hist <- ggplot(df_export_limpio, aes(x = potencialidad)) +
   theme_minimal(base_size = 12) 
 
 # Boxplot de Potencialidad (Detección formal de outliers) [23, 25]
-p_pot_box <- ggplot(df_export_limpio, aes(y = potencialidad)) +
+p_pot_box <- ggplot(df_prod_potencial_limpio, aes(y = potencialidad)) +
   geom_boxplot(fill = "lightblue", outlier.alpha = 0.5) +
   labs(title = "Boxplot de Potencialidad", y = "Potencialidad") +
   theme_minimal(base_size = 12) +
@@ -167,7 +167,7 @@ mensaje_exito("Gráfico de Potencialidad (Híp. C) guardado.")
 
 # 4.2 Base 2: Boxplots de Centralidad por Sección (Visualización para ANOVA Híp. D)
 # Se comprueba visualmente si la centralidad media difiere entre sectores [26, 27]
-p_centralidad_seccion <- df_potencial_limpio %>%
+p_centralidad_seccion <- df_prod_export_limpio %>%
   # Convertir seccion a factor si no lo está
   mutate(seccion_f = as.factor(seccion)) %>%
   ggplot(aes(x = seccion_f, y = centralidad, fill = seccion_f)) +
@@ -185,6 +185,11 @@ p_centralidad_seccion <- df_potencial_limpio %>%
 ggsave(file.path(dir_outputs_figures, "03_boxplot_centralidad_seccion.png"), plot = p_centralidad_seccion, width = 12, height = 6)
 mensaje_exito("Gráfico Boxplot/Jitter para ANOVA (Híp. D) guardado.")
 
+# Verifica cuántos NA hay en la variable Centralidad
+sum(is.na(df_prod_export_limpio$centralidad))
+# Verifica cuántos NA hay en la variable Sección
+sum(is.na(df_prod_export_limpio$seccion))
+
 
 # -----------------------------------------------------------------------------
 # 5. PRIMERAS OBSERVACIONES Y ANOMALÍAS (CONSIGNA 3)
@@ -194,10 +199,10 @@ mensaje_proceso("5. Primeras y últimas observaciones (Head/Tail)")
 
 # Se observan los primeros 10 registros para buscar errores o patrones iniciales
 cat("\n--- PRIMERAS 10 OBSERVACIONES BASE 1 ---\n")
-print(head(df_export_limpio, 10))
+print(head(df_prod_export_limpio, 10))
 
 cat("\n--- ÚLTIMAS 10 OBSERVACIONES BASE 2 ---\n")
-print(tail(df_potencial_limpio, 10))
+print(tail(df_prod_potencial_limpio, 10))
 
 # -----------------------------------------------------------------------------
 # 6. DOCUMENTACIÓN DE HALLAZGOS Y PASO FINAL
@@ -207,5 +212,5 @@ mensaje_exito("EDA exhaustivo completado. Los resultados descriptivos y visuales
 
 # Al final del script, se recomienda guardar una tabla de las descriptivas
 # importantes en /output/tables/ para el informe final
-write_csv(descriptivas_base1, file.path(dir_outputs_tables, "03_descriptivas_base1.csv"))
-write_csv(descriptivas_base2, file.path(dir_outputs_tables, "03_descriptivas_base2.csv"))
+write_csv(descriptivas_potencial, file.path(dir_outputs_tables, "03_descriptivas_potencial.csv"))
+write_csv(descriptivas_export, file.path(dir_outputs_tables, "03_descriptivas_export.csv"))
