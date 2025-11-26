@@ -31,6 +31,7 @@ if (!exists("proyecto_dir")) {
 dir_data_raw <- file.path(proyecto_dir, "data", "raw")
 dir_data_processed <- file.path(proyecto_dir, "data", "processed")
 dir_data_clean <- file.path(proyecto_dir, "data", "clean")
+dir_data_transformed <- file.path(proyecto_dir, "data", "transformed")
 dir_outputs_figures <- file.path(proyecto_dir, "outputs", "figures")
 dir_outputs_tables <- file.path(proyecto_dir, "outputs", "tables")
 dir_outputs_reports <- file.path(proyecto_dir, "outputs", "reports")
