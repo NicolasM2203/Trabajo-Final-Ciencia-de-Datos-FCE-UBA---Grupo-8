@@ -17,6 +17,7 @@ pacman::p_load(
   scales,       # Formato de ejes en gráficos
   janitor,       # Limpieza de nombres (muy recomendado)
   naniar,      # Gestión y visualización de datos faltantes (NA's)
+  car,         # Test Levene (supuestos ANOVA)
   patchwork    # Combinar múltiples gráficos de ggplot2
 )
 
@@ -60,6 +61,8 @@ mensaje_exito <- function(texto) {
 mensaje_proceso <- function(texto) {
   cat("🔄", texto, "...\n")
 }
+
+
 
 # 6. Cargar Funciones Personalizadas ------------------------------------------
 # Busca todos los archivos .R dentro de la carpeta functions
