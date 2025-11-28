@@ -1,5 +1,5 @@
 # =============================================================================
-# SCRIPT 05: ANÁLISIS DE REGRESIÓN MÚLTIPLE (HIPÓTESIS C)
+# SCRIPT 06: ANÁLISIS DE REGRESIÓN MÚLTIPLE (HIPÓTESIS C)
 # Proyecto: Complejidad Económica Provincial
 # Descripción: Test de la Hipótesis C sobre la Base de Potencial Productivo.
 #              Modelo: Potencialidad ~ Complejidad + Distancia + Controles
@@ -19,6 +19,7 @@ source(here::here("config", "global.R"))
 
 # Definimos constante de significancia
 ALPHA_SIGNIFICANCIA <- 0.05
+ALPHA <- 0.05
 
 mensaje_proceso("Iniciando análisis de Regresión Múltiple (Hipótesis C)...")
 
