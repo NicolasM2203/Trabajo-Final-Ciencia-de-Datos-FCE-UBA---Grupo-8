@@ -18,6 +18,7 @@ pacman::p_load(
   janitor,       # Limpieza de nombres (muy recomendado)
   naniar,      # Gestión y visualización de datos faltantes (NA's)
   car,         # Test Levene (supuestos ANOVA)
+  rstatix,     #Test Games-Howell
   patchwork    # Combinar múltiples gráficos de ggplot2
 )
 
