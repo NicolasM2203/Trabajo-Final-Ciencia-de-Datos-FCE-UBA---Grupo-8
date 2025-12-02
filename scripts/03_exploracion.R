@@ -21,7 +21,7 @@ mensaje_proceso("Iniciando análisis exploratorio de datos (EDA)")
 ruta_carga_export <- file.path(dir_data_clean, "df_prod_export_limpio.rds")
 ruta_carga_potencial <- file.path(dir_data_clean, "df_prod_potencial_limpio.rds")
 
-# Cargar los datos limpios y procesados (Autocontención) [11, 12]
+# Cargar los datos limpios y procesados 
 df_prod_export_limpio <- readRDS(ruta_carga_export) 
 df_prod_potencial_limpio <- readRDS(ruta_carga_potencial) 
 
@@ -60,15 +60,57 @@ reporte_na_base_export <- df_prod_export_limpio %>%
   filter(N_NA > 0)
 
 cat("\n--- REPORTE DE VALORES FALTANTES (BASE EXPORT) ---\n")
+
 if (nrow(reporte_na_base_export) > 0) {
+  
+  mensaje_proceso("⚠️ Se detectaron valores faltantes en la Base Export:")
+  
+  # 1. Imprimir resumen en consola (Mucho más claro que un gráfico saturado)
   print(reporte_na_base_export)
-  # Visualización del patrón de faltantes (si existen NAs)
-  p_vis_na_1 <- vis_miss(df_prod_export_limpio) + 
-    labs(title = "Patrón de Datos Faltantes - Base Export")
-  ggsave(file.path(dir_outputs_figures, "eda_na_base_export.png"), plot = p_vis_na_1, width = 8, height = 6)
-  mensaje_proceso("Gráfico de patrón de faltantes Base Export guardado.")
+  
+  # 2. Guardar el reporte detallado como CSV para consultarlo luego
+  ruta_reporte_na <- file.path(dir_outputs_tables, "reporte_na_base_export.csv")
+  write_csv(reporte_na_base_export, ruta_reporte_na)
+  
+  mensaje_proceso(paste("Detalle de faltantes guardado en:", ruta_reporte_na))
+  
 } else {
-  mensaje_exito("Base Export no contiene valores faltantes.")
+  mensaje_exito("✅ Base Export no contiene valores faltantes.")
+}
+
+#Creemos que los NAs son todos pertenecientes a la seccion "otros"..
+
+mensaje_proceso("Analizando la distribución de NAs en 'centralidad' por Sección...")
+
+# Filtramos solo los NA y contamos a qué sección pertenecen.
+conteo_na_por_seccion <- df_prod_export_limpio %>%
+  filter(is.na(centralidad)) %>%
+  count(seccion, name = "cantidad_nas") %>%
+  arrange(desc(cantidad_nas))
+
+print(conteo_na_por_seccion)
+
+# 2. ¿Qué porcentaje de cada sección son NAs?
+# Esto confirma si la sección "otros" está totalmente vacía o solo parcialmente.
+reporte_detallado <- df_prod_export_limpio %>%
+  group_by(seccion) %>%
+  summarise(
+    total_registros = n(),
+    cantidad_na = sum(is.na(centralidad)),
+    porcentaje_na = round((cantidad_na / total_registros) * 100, 2)
+  ) %>%
+  filter(cantidad_na > 0) %>% # Mostrar solo las secciones con problemas
+  arrange(desc(porcentaje_na))
+
+cat("\n--- DETALLE DE SECCIONES CON DATOS FALTANTES ---\n")
+print(reporte_detallado)
+
+# 3. Conclusión Automática
+if (nrow(conteo_na_por_seccion) == 1 && conteo_na_por_seccion$seccion[1] == "otros") {
+  mensaje_exito("✅ CONFIRMADO: Todos los valores faltantes (NA) pertenecen exclusivamente a la sección 'otros'.")
+  cat("   -> Decisión recomendada: Eliminar la sección 'otros' del ANOVA es metodológicamente correcto y seguro.\n")
+} else {
+  mensaje_alerta("⚠️ ATENCIÓN: Hay NAs en secciones distintas a 'otros'. Revisa la tabla de arriba antes de filtrar.")
 }
 
 # (Repetir para Base 2)
@@ -78,16 +120,22 @@ reporte_na_base_potencial <- df_prod_potencial_limpio %>%
   mutate(P_NA = round(N_NA / nrow(df_prod_potencial_limpio) * 100, 2)) %>%
   filter(N_NA > 0)
 
-cat("\n--- REPORTE DE VALORES FALTANTES (BASE POTENCIAL) ---\n")
+# --- REPORTE DE VALORES FALTANTES (BASE POTENCIAL) ---
+
+# Verificamos si hay filas en el reporte de NAs
 if (nrow(reporte_na_base_potencial) > 0) {
+  
+  mensaje_proceso("⚠️ Se detectaron valores faltantes en la Base Potencial:")
+  
+  # Imprimimos la tabla resumen en la consola de forma limpia
   print(reporte_na_base_potencial)
-  # Visualización del patrón de faltantes (si existen NAs)
-  p_vis_na_2 <- vis_miss(df_prod_potencial_limpio) + 
-    labs(title = "Patrón de Datos Faltantes - Base Potencial")
-  ggsave(file.path(dir_outputs_figures, "eda_na_base_potencial.png"), plot = p_vis_na_2, width = 8, height = 6)
-  mensaje_proceso("Gráfico de patrón de faltantes Base Potencial guardado.")
+  
+  # Opcional: Guardar este reporte como CSV en lugar de gráfico
+  write_csv(reporte_na_base_potencial, file.path(dir_outputs_tables, "reporte_na_base_potencial.csv"))
+  mensaje_proceso("Se guardó el detalle de faltantes en 'output/tables/reporte_na_base_potencial.csv'")
+  
 } else {
-  mensaje_exito("Base Potencial no contiene valores faltantes.")
+  mensaje_exito("✅ Base Potencial no contiene valores faltantes (Clean Data).")
 }
 
 # -----------------------------------------------------------------------------
