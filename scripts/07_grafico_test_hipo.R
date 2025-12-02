@@ -78,93 +78,128 @@ ggsave(file.path(dir_outputs_figures, "G1_ranking_sectores_anova.png"), p1, widt
 # GRÁFICO 2: POTENCIALIDAD vs COMPLEJIDAD y DISTANCIA (HIPÓTESIS C)
 # Objetivo: Scatter Plot que muestre el hallazgo de la regresión.
 # -----------------------------------------------------------------------------
-
+# 1. Cargar Datos Transformados (Base 2)
+# -----------------------------------------------------------------------------
 ruta_base2 <- file.path(dir_data_transformed, "df_prod_potencial_transformado.rds")
 df_base2 <- readRDS(ruta_base2)
 
-mensaje_proceso("Generando Gráfico 2: Scatter Plot Multidimensional...")
-
-# 1. Preparación de Datos
+# 2. Preparación de Datos para el Gráfico
+# -----------------------------------------------------------------------------
 df_viz_2 <- df_base2 %>%
   mutate(
+    # Creamos los terciles de distancia para colorear
     distancia_cat = ntile(distancia, 3), 
     distancia_factor = case_when(
       distancia_cat == 1 ~ "1. Baja Distancia (Cercanos)",
       distancia_cat == 2 ~ "2. Distancia Media",
       distancia_cat == 3 ~ "3. Alta Distancia (Lejanos)"
-    )
+    ),
+    # Normalizamos nombres para facilitar la búsqueda
+    nombre_min = tolower(ncm_6d)
   )
 
+# Fondo del gráfico (Muestra aleatoria para no saturar)
 set.seed(999)
 df_fondo_2 <- df_viz_2 %>% sample_n(10000) 
 
-# --- SELECCIÓN MANUAL DE PUNTOS POR NOMBRE EXACTO ---
-# Definimos la lista exacta de nombres que quieres ver
-nombres_objetivo <- c(
+# 3. SELECCIÓN INTELIGENTE DE ETIQUETAS (CON COLOR CORRECTO)
+# -----------------------------------------------------------------------------
+
+# Definimos las listas de productos por el color/distancia que QUEREMOS mostrar
+# (Esto asegura que la narrativa visual sea coherente)
+
+target_baja_dist <- c(
   "carne bovina, deshuesada, congelada",
-  "aceite soja en bruto, desgomado",
-  "manteca,grasa y aceite de cacao",
   "alcohol isobutilico",
+  "azucares, eteres, acetales y sales"
+)
+
+target_media_dist <- c(
+  "aceite soja en bruto, desgomado"
+)
+
+target_alta_dist <- c(
+  "manteca,grasa y aceite de cacao",
   "guitarras y contrabajos electricos",
-  "azucares, eteres, acetales y sales",
   "pilas de litio,c/volumen exterior <= a 300cm3"
 )
 
-# Filtramos buscando coincidencia exacta (usando tolower para evitar problemas de mayúsculas)
+# Unimos todo en una sola lista para filtrar primero
+todos_los_targets <- c(target_baja_dist, target_media_dist, target_alta_dist)
+
 df_etiquetas_2 <- df_viz_2 %>%
-  mutate(nombre_min = tolower(ncm_6d)) %>% # Normalizamos a minúsculas
-  filter(nombre_min %in% nombres_objetivo) %>%
-  # Nos aseguramos de que no haya duplicados (si hay 2 aceites iguales, tomamos el primero)
+  # 1. Filtramos solo los productos de interés
+  filter(nombre_min %in% todos_los_targets) %>%
+  
+  # 2. Agrupamos por producto para elegir LA MEJOR provincia para cada uno
   group_by(nombre_min) %>%
-  slice_head(n = 1) %>%
+  
+  # 3. ORDENAMIENTO INTELIGENTE (Aquí ocurre la magia de los colores)
+  arrange(case_when(
+    # Si lo queremos ROJO (Alta), ordenamos de mayor a menor distancia
+    nombre_min %in% target_alta_dist ~ desc(distancia),
+    
+    # Si lo queremos AMARILLO (Media), priorizamos los del tercil 2
+    nombre_min %in% target_media_dist ~ abs(distancia_cat - 2), 
+    
+    # Si lo queremos VERDE (Baja), ordenamos de menor a mayor distancia
+    TRUE ~ distancia 
+  )) %>%
+  
+  # 4. Nos quedamos con el mejor candidato de cada producto
+  slice(1) %>%
   ungroup() %>%
-  mutate(
-    # Creamos la etiqueta final truncada y prolija
-    etiqueta_producto = str_trunc(ncm_6d, 30) 
-  )
+  
+  # 5. Creamos la etiqueta limpia
+  mutate(etiqueta_producto = str_trunc(ncm_6d, 35))
 
-# Verificación en consola: Debe imprimir exactamente 7 productos o menos
-cat("\nProductos encontrados y listos para etiquetar:\n")
-print(df_etiquetas_2$etiqueta_producto)
+# Verificación en consola
+cat("\nProductos seleccionados y su categoría asignada:\n")
+print(df_etiquetas_2 %>% select(etiqueta_producto, distancia_factor))
 
 
-# Crear Gráfico
+# 4. CREACIÓN DEL GRÁFICO
+# -----------------------------------------------------------------------------
+
+# Definición de Colores (Semáforo)
+col_verde    <- "#2ECC71"
+col_amarillo <- "#F1C40F"
+col_rojo     <- "#E74C3C"
+
 p2 <- ggplot(df_fondo_2, aes(x = complejidad_producto_win, y = potencialidad_win)) +
   
-  # A. Puntos de fondo (Scatter)
-  geom_point(aes(color = distancia_factor), alpha = 0.3, size = 1.5) +
+  # A. Nube de puntos de fondo
+  geom_point(aes(color = distancia_factor), alpha = 0.2, size = 1.5) +
   
-  # B. Líneas de Tendencia por Grupo (MCO)
+  # B. Líneas de Tendencia
   geom_smooth(aes(color = distancia_factor, fill = distancia_factor), 
-              method = "lm", alpha = 0.15, linewidth = 1) +
+              method = "lm", alpha = 0.1, linewidth = 0.8) +
   
-  # C. Etiquetas Inteligentes (Solo los 7 puntos seleccionados)
+  # C. Puntos Destacados (Círculo blanco + Borde de color)
   geom_point(data = df_etiquetas_2, aes(color = distancia_factor), 
-             size = 4, shape = 21, fill = "white", stroke = 1.5) + # Círculo blanco para resaltar
+             size = 4, shape = 21, fill = "white", stroke = 2) +
   
+  # D. Etiquetas (Texto)
   geom_label_repel(data = df_etiquetas_2, 
-                   aes(label = etiqueta_producto, color = distancia_factor), 
-                   size = 3,                 
-                   fontface = "bold",        
-                   box.padding = 0.8,        # Más espacio para que respire
-                   point.padding = 0.5,      
-                   force = 20,               # Fuerza de repulsión alta para separarlas bien
-                   show.legend = FALSE,
+                   aes(label = etiqueta_producto, color = distancia_factor),
+                   size = 3.5, fontface = "bold",
+                   box.padding = 0.8, point.padding = 0.5,
+                   force = 20, show.legend = FALSE,
                    max.overlaps = Inf) +
   
-  # D. Escalas y Colores
+  # E. Escalas
   scale_color_manual(values = c(
-    "1. Baja Distancia (Cercanos)" = "#2ECC71", 
-    "2. Distancia Media" = "#F1C40F",           
-    "3. Alta Distancia (Lejanos)" = "#E74C3C"   
+    "1. Baja Distancia (Cercanos)" = col_verde,
+    "2. Distancia Media" = col_amarillo,
+    "3. Alta Distancia (Lejanos)" = col_rojo
   )) +
   scale_fill_manual(values = c(
-    "1. Baja Distancia (Cercanos)" = "#2ECC71",
-    "2. Distancia Media" = "#F1C40F",
-    "3. Alta Distancia (Lejanos)" = "#E74C3C"
+    "1. Baja Distancia (Cercanos)" = col_verde,
+    "2. Distancia Media" = col_amarillo,
+    "3. Alta Distancia (Lejanos)" = col_rojo
   )) +
   
-  # E. Textos Editorializados
+  # F. Textos
   labs(
     title = "Complejidad y Distancia: Motores de la Diversificación Productiva",
     subtitle = "Relación entre el valor de un producto (Complejidad) y la oportunidad que genera (Potencialidad),\nsegmentada por la dificultad para alcanzarlo (Distancia).",
@@ -175,9 +210,14 @@ p2 <- ggplot(df_fondo_2, aes(x = complejidad_producto_win, y = potencialidad_win
     caption = "Nota: La pendiente positiva confirma que la complejidad impulsa el potencial. La separación de las líneas\nconfirma el hallazgo de la regresión: los productos 'Lejanos' tienen mayor potencial para el mismo nivel de complejidad."
   ) +
   
-  theme(legend.position = "bottom")
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom",
+        plot.title = element_text(face = "bold"),
+        panel.grid.minor = element_blank())
 
-ggsave(file.path(dir_outputs_figures, "G2_scatter_potencialidad_complejidad.png"), p2, width = 12, height = 8, bg = "white")
+# 5. GUARDADO
+# -----------------------------------------------------------------------------
+ruta_figura <- file.path(dir_outputs_figures, "G2_scatter_potencialidad_final_v2.png")
+ggsave(ruta_figura, p2, width = 12, height = 8, bg = "white")
 
-mensaje_exito("Gráficos generados exitosamente en output/figures/")
-mensaje_exito("¡Listos para pegar en las diapositivas!")
+mensaje_exito(paste("Gráfico final generado y guardado en:", ruta_figura))
