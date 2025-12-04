@@ -191,10 +191,10 @@ plot_gh <- ggplot(datos_heatmap, aes(x = group1, y = group2)) +
   scale_fill_manual(
     values = c(
       "ns" = "#E0E0E0",     # Gris claro para 'No Significativo'
-      "*" = "#FFC0CB",      # Rosa claro para significativo al 0.05
-      "**" = "#FF69B4",     # Rosado intermedio
-      "***" = "#FF1493",    # Rosa intenso para muy significativo
-      "****" = "#800080"    # Morado para extrema significancia 
+      "*" = "#B1CCB1",      # Verde claro para significativo al 0.05
+      "**" = "#50AA99",     # Verde agua intermedio
+      "***" = "#006070",    # Verde intenso para muy significativo
+      "****" = "#004060"    # Verde acero para extrema significancia 
     ),
     drop = FALSE, 
     name = "Significancia (p.adj)"
@@ -203,8 +203,8 @@ plot_gh <- ggplot(datos_heatmap, aes(x = group1, y = group2)) +
   # D. Etiquetas y Títulos
   labs(
     title = "Matriz de Diferencias Significativas (Games-Howell)",
-    x = "Sector",
-    y = "Sector"
+    x = "Seccion",
+    y = "Seccion"
   ) +
   
   # E. Tema para mejorar la estética
