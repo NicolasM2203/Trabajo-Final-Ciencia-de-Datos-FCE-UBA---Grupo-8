@@ -2,10 +2,9 @@
 # CARGA DE BASES DE COMPLEJIDAD ECONÓMICA PROVINCIAL
 # ------------------------------------------------------------------------------
 # Responsabilidad: Limpiar los datos originales.
-# El script es autocontenido y usa rutas relativas. [3]
 # ==============================================================================
 
-# 1. Configuración de dependencias (Utilizo el archivo global con las pre-configuraciones)
+# 1. Configuración Utilizand el archivo global con las pre-configuraciones
 library(here)
 source(here("config", "global.R"))
 
@@ -23,7 +22,6 @@ df_prod_potencial <- readRDS(ruta_rds_potencial)
 
 mensaje_exito("Bases cargadas correctamente. Inicia la limpieza.")
 
-
 #3. Aplicación de la limpieza
 
 print("Aplicando limpieza a la base de Exportaciones (prod_export)...")
@@ -39,8 +37,7 @@ df_prod_potencial_limpio <- limpiar_prop(df_prod_potencial_limpio)
 
 # 4. Guardar los datos limpios
 
-# Se utiliza la carpeta data/clean/para los resultados de la limpieza y transformación [3].
-# Es buena práctica agregar un timestamping o sufijo claro (ej: _limpio)
+# Se utiliza la carpeta data/clean/para los resultados de la limpieza y transformación.
 
 ruta_salida_export <- here("data", "clean", "df_prod_export_limpio.rds")
 ruta_salida_potencial <- here("data", "clean", "df_prod_potencial_limpio.rds")
@@ -48,7 +45,7 @@ ruta_salida_potencial <- here("data", "clean", "df_prod_potencial_limpio.rds")
 saveRDS(df_prod_export_limpio, file = ruta_salida_export)
 saveRDS(df_prod_potencial_limpio, file = ruta_salida_potencial)
 
-# Documentación (Logging y documentación automática)
+# Documentación 
 cat("\nDatos limpios guardados con exito",
     "\n ->", ruta_salida_export,
     "\n ->", ruta_salida_potencial, "\n")
@@ -73,7 +70,7 @@ ruta_salida_potencial <- here("data", "clean", "df_prod_potencial_reducido.rds")
 saveRDS(df_prod_export_reducido, file = ruta_salida_export)
 saveRDS(df_prod_potencial_reducido, file = ruta_salida_potencial)
 
-# Documentación (Logging y documentación automática)
+# Documentación
 cat("\nDatos reducidos guardados con exito",
     "\n ->", ruta_salida_export,
     "\n ->", ruta_salida_potencial, "\n")
