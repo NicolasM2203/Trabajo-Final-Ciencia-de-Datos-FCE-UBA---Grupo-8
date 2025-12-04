@@ -1,10 +1,7 @@
-# scripts/01_carga_datos.R
-
 # ==============================================================================
 # CARGA DE BASES DE COMPLEJIDAD ECONÓMICA PROVINCIAL
 # ------------------------------------------------------------------------------
 # Responsabilidad: Cargar los datos originales (raw) sin modificarlos.
-# El script es autocontenido y usa rutas relativas. [3]
 # ==============================================================================
 
 # 1. Configuración de dependencias (Utilizo el archivo global con las pre-configuraciones)
@@ -15,20 +12,19 @@ source(here("config", "global.R"))
 ruta_export    <- file.path(dir_data_raw, "prod_export.csv") #definimos las rutas especificas de los csv a partir de la variable de carpeta ya creada
 ruta_potencial <- file.path(dir_data_raw, "prod_potencial.csv")
 
-# 3. Ejecución de la Carga de Datos (Utilizando la Función estándar para cargar datos) [2]
-
-# Se asigna la base cargada a una variable descriptiva (df_prod_export)
+# 3. Ejecución de la Carga de Datos
+# Se asigna la base cargada a una variable descriptiva 
 df_prod_export <- read_csv(ruta_export)
 
-# Documentación de metadatos de la carga [3]
+# Documentación de metadatos de la carga 
 cat("\n--- Base de Exportaciones (prod_export) ---",
     "\nFuente:", ruta_export,
     "\nDimensiones:", nrow(df_prod_export), "filas x", ncol(df_prod_export), "columnas\n")
 
-# Se asigna la base cargada a una variable descriptiva (df_prod_potencial)
+# Se asigna la otra base cargada a una variable descriptiva 
 df_prod_potencial <- read_csv(ruta_potencial)
 
-# Documentación de metadatos de la carga [3]
+# Documentación de metadatos de la carga 
 cat("\n--- Base de Potencial Productivo (prod_pontecial) ---",
     "\nFuente:", ruta_potencial,
     "\nDimensiones:", nrow(df_prod_potencial), "filas x", ncol(df_prod_potencial), "columnas\n")
