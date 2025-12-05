@@ -1,6 +1,5 @@
 # =============================================================================
 # SCRIPT 06: ANÁLISIS DE REGRESIÓN MÚLTIPLE (HIPÓTESIS C)
-# Proyecto: Complejidad Económica Provincial
 # Descripción: Test de la Hipótesis C sobre la Base de Potencial Productivo.
 #              Modelo: Potencialidad ~ Complejidad + Distancia + Controles
 # Inputs: df_prod_potencial_transformado.rds (Desde carpeta 'transformed')
@@ -23,20 +22,20 @@ ALPHA <- 0.05
 
 mensaje_proceso("Iniciando análisis de Regresión Múltiple (Hipótesis C)...")
 
-# -----------------------------------------------------------------------------
-# 1. CARGA DE DATOS (BASE 2 TRANSFORMADA)
-# -----------------------------------------------------------------------------
 
-# Usamos la nueva variable de ruta definida en tu global actualizado
+
+
+# 1. CARGA DE DATOS 
+
 ruta_base_potencial <- file.path(dir_data_transformed, "df_prod_potencial_transformado.rds")
-
 df_pot_transf <- readRDS(ruta_base_potencial)
 
 mensaje_exito("Base de Potencial cargada correctamente desde 'transformed'.")
 
-# -----------------------------------------------------------------------------
+
+
+
 # 2. ESPECIFICACIÓN Y ESTIMACIÓN DEL MODELO MCO
-# -----------------------------------------------------------------------------
 
 # HIPÓTESIS C:
 # Y = Potencialidad (Winsorizada)
@@ -56,9 +55,13 @@ modelo_c <- lm(formula = formula_hipotesis_c, data = df_pot_transf)
 cat("\n--- RESUMEN PRELIMINAR (MCO Clásico) ---\n")
 print(summary(modelo_c))
 
-# -----------------------------------------------------------------------------
-# 3. DIAGNÓSTICO DE SUPUESTOS (RIGOR METODOLÓGICO)
-# -----------------------------------------------------------------------------
+
+
+
+
+
+# 3. DIAGNÓSTICO DE SUPUESTOS 
+
 
 mensaje_proceso("Ejecutando diagnósticos del modelo...")
 
@@ -77,11 +80,12 @@ try({
   }
   
   if(any(vif_res > 10, na.rm=TRUE)) { 
-    mensaje_alerta("¡Alerta! Se detectó Multicolinealidad Severa (VIF > 10).")
+    mensaje_alerta("Se detectó Multicolinealidad Severa (VIF > 10).")
   } else {
     mensaje_exito("Multicolinealidad bajo control.")
   }
 })
+
 
 # 3.2 Heterocedasticidad (Test de Breusch-Pagan)
 # ---------------------------------------------
@@ -100,9 +104,17 @@ if (bp_test$p.value < ALPHA_SIGNIFICANCIA) {
   mensaje_proceso("No se rechaza H0: Homocedasticidad plausible.")
 }
 
-# -----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 # 4. RESULTADOS FINALES CON INFERENCIA ROBUSTA
-# -----------------------------------------------------------------------------
 
 # Calculamos la matriz de covarianza robusta (White / HC1)
 # Esto ajusta los p-valores para que sean válidos incluso con heterocedasticidad.
@@ -114,16 +126,16 @@ cat("======================================================\n")
 print(res_robustos)
 
 
-# -----------------------------------------------------------------------------
+
+
+
+
+
 # 5. INTERPRETACIÓN AUTOMÁTICA (CLARIDAD EXPOSITIVA)
-# -----------------------------------------------------------------------------
 
 cat("\n======================================================\n")
 cat("   INTERPRETACIÓN EJECUTIVA DE LA HIPÓTESIS C\n")
 cat("======================================================\n")
-
-# 2. Extraemos valores clave de la tabla robusta
-# OJO: Los nombres entre comillas deben coincidir EXACTO con la salida del print anterior
 
 # --- Variable COMPLEJIDAD ---
 coef_comp <- res_robustos["complejidad_producto_win", "Estimate"]
@@ -135,7 +147,7 @@ coef_dist <- res_robustos["distancia", "Estimate"]
 pval_dist <- res_robustos["distancia", "Pr(>|t|)"]
 es_sig_dist <- pval_dist < ALPHA
 
-# 3. Generamos el reporte en consola
+# Generamos el reporte en consola
 cat("\n--- ANÁLISIS DE SIGNOS Y SIGNIFICANCIA ---\n")
 
 # Reporte para Complejidad (Esperábamos Positivo +)
@@ -156,17 +168,18 @@ cat(paste0("2. Distancia (X2):   Coef = ", round(coef_dist, 4),
 if(es_sig_dist && coef_dist < 0) {
   cat("   ✅ CONFIRMA H1: A mayor distancia, menor potencialidad.\n")
 } else if(es_sig_dist && coef_dist > 0) {
-  cat("   🔄 HALLAZGO (CONTRA-INTUITIVO): Relación POSITIVA y SIGNIFICATIVA.\n")
+  cat("   🔄 REFUTACION: Relación POSITIVA y SIGNIFICATIVA.\n")
   cat("      Interpretación: Los productos con mayor potencial estratégico son los más 'lejanos'.\n")
 } else {
   cat("   ❌ NO SIGNIFICATIVO: La distancia no parece influir.\n")
 }
 
-mensaje_exito("Interpretación generada. Copiar estos resultados para el informe.")
 
-# -----------------------------------------------------------------------------
+
+
+
+
 # 6. CONCLUSIÓN AUTOMÁTICA Y GUARDADO
-# -----------------------------------------------------------------------------
 
 # Extraemos coeficientes de interés
 coef_dist <- res_robustos["distancia", "Estimate"]

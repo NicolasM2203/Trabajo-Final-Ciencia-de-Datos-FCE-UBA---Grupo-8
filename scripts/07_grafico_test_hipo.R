@@ -1,7 +1,7 @@
 # =============================================================================
 # SCRIPT 07: VISUALIZACIÓN Y STORYTELLING
 # Proyecto: Complejidad Económica Provincial
-# Descripción: Generación de gráficos editorializados para el informe final.
+# Descripción: Generación de gráficos editorializados para el informe
 #              1. Ranking de Sectores (Contexto ANOVA)
 #              2. Relación Potencialidad-Complejidad-Distancia (Hipótesis C)
 # Inputs: df_prod_export_reducido.rds (Base 1) y df_prod_potencial_transformado.rds (Base 2)
@@ -18,14 +18,12 @@ library(scales)    # Para formato de ejes
 
 source(here::here("config", "global.R")) 
 
-mensaje_proceso("Iniciando generación de gráficos editorializados...")
-
-# Definimos PALETA DE COLORES (Storytelling visual)
+# Definimos PALETA DE COLORES
 col_principal <- "#2C3E50" # Azul oscuro
 col_acento    <- "#E74C3C" # Rojo (Destacados)
 col_secundario<- "#95A5A6" # Gris (Contexto)
 
-# TEMA PERSONALIZADO
+# TEMA
 tema_grupo9 <- theme_minimal(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold", size = 16, color = "black"),
@@ -39,10 +37,13 @@ tema_grupo9 <- theme_minimal(base_size = 14) +
 
 theme_set(tema_grupo9)
 
-# -----------------------------------------------------------------------------
+
+
+
+
 # GRÁFICO 1: RANKING ESTRUCTURAL (RESULTADO DEL ANOVA)
 # Objetivo: Mostrar que no todos los sectores son iguales.
-# -----------------------------------------------------------------------------
+
 
 ruta_base1 <- file.path(dir_data_clean, "df_prod_export_reducido.rds")
 df_base1 <- readRDS(ruta_base1)
@@ -74,17 +75,24 @@ p1 <- ggplot(df_viz_1, aes(x = seccion, y = centralidad)) +
 ggsave(file.path(dir_outputs_figures, "G1_ranking_sectores_anova.png"), p1, width = 12, height = 7, bg = "white")
 
 
-# -----------------------------------------------------------------------------
+
+
+
+
+
+
+
 # GRÁFICO 2: POTENCIALIDAD vs COMPLEJIDAD y DISTANCIA (HIPÓTESIS C)
 # Objetivo: Scatter Plot que muestre el hallazgo de la regresión.
-# -----------------------------------------------------------------------------
+
+
 # 1. Cargar Datos Transformados (Base 2)
-# -----------------------------------------------------------------------------
+
 ruta_base2 <- file.path(dir_data_transformed, "df_prod_potencial_transformado.rds")
 df_base2 <- readRDS(ruta_base2)
 
 # 2. Preparación de Datos para el Gráfico
-# -----------------------------------------------------------------------------
+
 df_viz_2 <- df_base2 %>%
   mutate(
     # Creamos los terciles de distancia para colorear
@@ -102,11 +110,13 @@ df_viz_2 <- df_base2 %>%
 set.seed(999)
 df_fondo_2 <- df_viz_2 %>% sample_n(10000) 
 
-# 3. SELECCIÓN INTELIGENTE DE ETIQUETAS (CON COLOR CORRECTO)
-# -----------------------------------------------------------------------------
 
+
+
+
+
+# 3. SELECCIÓN INTELIGENTE DE ETIQUETAS 
 # Definimos las listas de productos por el color/distancia que QUEREMOS mostrar
-# (Esto asegura que la narrativa visual sea coherente)
 
 target_baja_dist <- c(
   "carne bovina, deshuesada, congelada",
@@ -134,15 +144,10 @@ df_etiquetas_2 <- df_viz_2 %>%
   # 2. Agrupamos por producto para elegir LA MEJOR provincia para cada uno
   group_by(nombre_min) %>%
   
-  # 3. ORDENAMIENTO INTELIGENTE (Aquí ocurre la magia de los colores)
+  # 3. ORDENAMIENTO INTELIGENTE
   arrange(case_when(
-    # Si lo queremos ROJO (Alta), ordenamos de mayor a menor distancia
     nombre_min %in% target_alta_dist ~ desc(distancia),
-    
-    # Si lo queremos AMARILLO (Media), priorizamos los del tercil 2
     nombre_min %in% target_media_dist ~ abs(distancia_cat - 2), 
-    
-    # Si lo queremos VERDE (Baja), ordenamos de menor a mayor distancia
     TRUE ~ distancia 
   )) %>%
   
@@ -153,13 +158,13 @@ df_etiquetas_2 <- df_viz_2 %>%
   # 5. Creamos la etiqueta limpia
   mutate(etiqueta_producto = str_trunc(ncm_6d, 35))
 
-# Verificación en consola
+# Verificación
 cat("\nProductos seleccionados y su categoría asignada:\n")
 print(df_etiquetas_2 %>% select(etiqueta_producto, distancia_factor))
 
 
+
 # 4. CREACIÓN DEL GRÁFICO
-# -----------------------------------------------------------------------------
 
 # Definición de Colores (Semáforo)
 col_verde    <- "#2ECC71"
@@ -214,6 +219,11 @@ p2 <- ggplot(df_fondo_2, aes(x = complejidad_producto_win, y = potencialidad_win
   theme(legend.position = "bottom",
         plot.title = element_text(face = "bold"),
         panel.grid.minor = element_blank())
+
+
+
+
+
 
 # 5. GUARDADO
 # -----------------------------------------------------------------------------

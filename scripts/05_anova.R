@@ -20,8 +20,12 @@ base_export <- readRDS(ruta_base2_in) %>%
   # Asegurarse de que el factor sea tipo factor/nominal
   mutate(seccion_f = as.factor(seccion))
 
+
+
+
+
 # 1. ESTADÍSTICAS DESCRIPTIVAS POR GRUPO (Paso 4)
-# -----------------------------------------------------------------------------
+
 mensaje_proceso("1. Calculando estadísticas descriptivas por Sección")
 
 stats_por_seccion <- base_export %>%
@@ -38,6 +42,12 @@ stats_por_seccion <- base_export %>%
 
 cat("\n--- ESTADÍSTICAS DE CENTRALIDAD POR SECCIÓN ---\n")
 print(stats_por_seccion)
+
+
+
+
+
+
 
 # 2. ELIMINACION / IMPUTACION DE VALORES PARA SECCION "OTROS"
 # limpiamos la seccion otros por su nula relevancia estadistica y economica
@@ -62,8 +72,11 @@ cat("\n--- ESTADÍSTICAS DE CENTRALIDAD POR SECCIÓN PARA ANOVA ---\n")
 print(stats_por_seccion_anova)
 
 
-# 3. VERIFICACIÓN DE SUPUESTOS (Paso 5: Rigor Metodológico)
-# -----------------------------------------------------------------------------
+
+
+
+
+# 3. VERIFICACIÓN DE SUPUESTOS (por Rigor Metodológico)
 mensaje_proceso("2. Verificando supuestos de ANOVA")
 
 # 2.1 Supuesto de Homogeneidad de Varianzas (Test de Levene)
@@ -93,12 +106,19 @@ if (p_valor_levene < alpha_significancia) {
 
 print(use_welch)
 
+
+
+
+
+
+
+
 # 3. AJUSTE DEL MODELO (ANOVA)
 # -----------------------------------------------------------------------------
 print("3. Ajustando modelo de ANOVA")
 
 if (use_welch) {
-  # oneway.test() implementa el Welch ANOVA, la Alternativa robusta a heterogeneidad [2]
+  # oneway.test() implementa el Welch ANOVA, la Alternativa robusta a heterogeneidad 
   modelo_anova <- oneway.test(centralidad ~ seccion_f, 
                               data = base_export_anova, 
                               var.equal = FALSE)
@@ -113,14 +133,19 @@ if (use_welch) {
   modelo_anova <- aov(centralidad ~ seccion_f, data = base_export_anova)
   
   cat("\n--- ANOVA DE UN FACTOR ---\n")
-  # El summary descompone la varianza [5] y proporciona el p-valor global [6]
+  # El summary descompone la varianza y proporciona el p-valor global
   print(summary(modelo_anova)) 
 }
 
 print(modelo_anova$p.value)
 
-# 4. INTERPRETACIÓN Y POST-HOC (Controlando el Error Tipo I)
-# -----------------------------------------------------------------------------
+
+
+
+
+
+# 4. INTERPRETACIÓN Y POST-HOC 
+#(Controlando el Error Tipo I)
 
 # El ANOVA es un test omnibus: evalúa si H0: Todas las medias son iguales
 
@@ -147,8 +172,8 @@ if (p_value_global < alpha_significancia) {
     
     # 1. Ejecutar el Test de Games-Howell
     games_howell_resultado <- base_export_anova %>% 
-      # Reemplaza 'Centralidad' con tu variable métrica real
-      # Reemplaza 'Sector' con tu variable categórica real
+      # Reemplaza 'Centralidad' con la variable métrica real
+      # Reemplaza 'Sector' con la variable categórica real
       games_howell_test(centralidad ~ seccion_f)
     
     # 2. Imprimir los resultados (muestra los pares con la diferencia y el p-valor ajustado)
@@ -165,11 +190,19 @@ if (p_value_global < alpha_significancia) {
   print("No se puede rechazar H0: No hay diferencia significativa en Centralidad entre los Sectores.")
 }
 
+ruta_gh <- file.path(dir_outputs_tables, "resultados_games_howell.csv")
+write_csv(games_howell_resultado, ruta_gh)
+
+
+
+
+
+
 # Gráfico Games_Howell
 
-# 1. Preparación de los datos (Solo seleccionamos las columnas clave)
+# 1. Preparación de los datos (Solo seleccionamos las columnas de interes)
 datos_heatmap <- games_howell_resultado %>%
-  select(group1, group2, p.adj.signif) # Aseguramos tener solo las columnas necesarias
+  select(group1, group2, p.adj.signif) 
 
 # 2. Crear el Mapa de Calor
 plot_gh <- ggplot(datos_heatmap, aes(x = group1, y = group2)) +
